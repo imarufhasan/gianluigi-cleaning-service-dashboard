@@ -1,51 +1,65 @@
-
-import { FaCreditCard, FaUsers } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
 import { IoCardOutline } from "react-icons/io5";
+import { Skeleton } from "antd";
 
+const formatNumber = (value) => Number(value ?? 0).toLocaleString();
+const formatMoney = (value) =>
+  `$${Number(value ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 
+const Stats = ({ summary, isLoading }) => {
+  const cards = [
+    {
+      label: "Total Owner",
+      value: formatNumber(summary?.totalOwners),
+      icon: FaUsers,
+    },
+    {
+      label: "Total Service Provider",
+      value: formatNumber(summary?.totalProviders),
+      icon: FaUsers,
+    },
+    {
+      label: "Total Earnings",
+      value: formatMoney(summary?.totalAdminEarnings),
+      icon: IoCardOutline,
+    },
+  ];
 
+  return (
+    // 1 column on phones, 2 on tablets, 3 on desktop
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {cards.map(({ label, value, icon: Icon }, index) => (
+        <div
+          key={label}
+          className={`flex items-center gap-4 rounded-xl bg-white p-5 shadow-md ${
+            // 3rd card full width on tablet so the grid doesn't look lopsided
+            index === 2 ? "sm:col-span-2 lg:col-span-1" : ""
+          }`}
+        >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#1B2D51] text-white">
+            <Icon size={22} />
+          </div>
 
-const Stats = ({summary}) => {
-
-  console.log("summary------->",summary); 
-    return (
-        <div className="grid grid-cols-3 gap-5 mb-2">
-            <div className=" text-white bg-[#FFFFFF] shadow-2xl px-16 rounded-xl flex gap-3 justify-center items-center py-5">
-               <div >
-   
-               <FaUsers className="text-[#ffffff] bg-[#1B2D51] text-3xl rounded-full p-2" size={50}/>
-               </div>
-              <div>
-                  <p className="font-title text-[#0F0B18] text-xl pb-2 ">Total Owner</p>
-                <p className="font-title  text-xl text-[#0F0B18]  pt-2">{summary?.totalOwners}</p>
-              </div>
-            </div>
-            <div className=" text-white bg-[#FFFFFF] shadow-2xl px-16 rounded-xl flex gap-3 justify-center items-center py-5">
-               <div >
-           
-               <FaUsers className="text-[#ffffff] bg-[#1B2D51] text-3xl rounded-full p-2" size={50}/>
-               </div>
-              <div>
-                  <p className="font-title text-[#0F0B18] text-xl pb-2 ">Total Service Provider</p>
-                <p className="font-title  text-xl text-[#0F0B18]  pt-2">{summary?.totalProviders}</p>
-              </div>
-            </div>
-            <div className=" text-white bg-[#FFFFFF] shadow-2xl px-16 rounded-xl flex gap-3 justify-center items-center py-5">
-               <div >
- 
-               <IoCardOutline className="text-[#ffffff] bg-[#1B2D51] text-3xl rounded-full p-2" size={50}/>
-               </div>
-              <div>
-                  <p className="font-title text-[#0F0B18] text-xl pb-2 ">Total Earnings</p>
-                <p className="font-title  text-xl text-[#0F0B18]  pt-2">${summary?.totalAdminEarnings}</p>
-              </div>
-            </div>
-    
-      
-           
-    
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm text-gray-500 sm:text-base">
+              {label}
+            </p>
+            {isLoading ? (
+              <Skeleton.Input
+                active
+                size="small"
+                className="!mt-1 !h-7 !w-24"
+              />
+            ) : (
+              <p className="truncate text-2xl font-semibold text-[#0F0B18]">
+                {value}
+              </p>
+            )}
+          </div>
         </div>
-    );
+      ))}
+    </div>
+  );
 };
 
 export default Stats;

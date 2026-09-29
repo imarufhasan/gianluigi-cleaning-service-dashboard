@@ -21,11 +21,8 @@ import ForgotPass from "../pages/ForgotPass/ForgotPass";
 import SetPass from "../pages/SetPass/SetPass";
 import KnowledgeHub from "../pages/KnowledgeHub/KnowledgeHub";
 import PrivetRoutes from "./PrivetRoute";
+import Banner from "../pages/Banner/Banner";
 import Affiliate from "../pages/Affiliate/Affiliate";
-
-
-
-
 
 const router = createBrowserRouter([
   {
@@ -36,10 +33,10 @@ const router = createBrowserRouter([
     path: "/verify",
     element: <Otp />,
   },
-//   {
-//     path: "/passReset",
-//     element: <PassReset />,
-//   },
+  //   {
+  //     path: "/passReset",
+  //     element: <PassReset />,
+  //   },
   {
     path: "/forgotPass",
     element: <ForgotPass />,
@@ -50,13 +47,17 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <PrivetRoutes><Main></Main></PrivetRoutes>,
+    element: (
+      <PrivetRoutes>
+        <Main></Main>
+      </PrivetRoutes>
+    ),
     // element:<Main></Main>,
     // errorElement: <ErrorPage></ErrorPage>,
     children: [
       {
         path: "/",
-        element: <DashboardPage/>,
+        element: <DashboardPage />,
       },
       {
         path: "/userManagement",
@@ -64,31 +65,31 @@ const router = createBrowserRouter([
       },
       {
         path: "/allOwner",
-        element: <AllOwner/>,
+        element: <AllOwner />,
       },
       {
         path: "/allProviders",
-        element: <AllProvider/>,
+        element: <AllProvider />,
       },
       {
         path: "/requestOverview",
-        element: <Request/>,
+        element: <Request />,
       },
       {
         path: "/transactionHistory",
-        element: <TransactionHistory/>,
+        element: <TransactionHistory />,
       },
       {
         path: "/allCategory",
-        element: <AllCategory/>,
+        element: <AllCategory />,
       },
       {
         path: "/paymentTracking",
-        element: <PaymentTrack/>,
+        element: <PaymentTrack />,
       },
       {
         path: "/accountSuspension",
-        element: <AccountSuspention/>,
+        element: <AccountSuspention />,
       },
       // {
       //   path: "/referralProgram",
@@ -96,33 +97,37 @@ const router = createBrowserRouter([
       // },
       {
         path: "/profileStatus",
-        element: <ProfileStatus/>,
+        element: <ProfileStatus />,
       },
       {
         path: "/knowledge",
-        element: <KnowledgeHub/>,
+        element: <KnowledgeHub />,
       },
       {
         path: "/setting/updateProfile",
-        element: <Profile/>,
+        element: <Profile />,
       },
       {
         path: "/setting/about",
-        element: <About/>,
+        element: <About />,
       },
       {
         path: "/setting/privacy",
-        element: <Privacy/>,
+        element: <Privacy />,
       },
       {
         path: "/setting/terms",
-        element: <Terms/>,
-      }
+        element: <Terms />,
+      },
+
+      {
+        path: "/banner",
+        element: <Banner />,
+      },
       // {
       //   path: "/setting/affiliate",
       //   element: <Affiliate/>,
       // },
-     
     ],
   },
 ]);

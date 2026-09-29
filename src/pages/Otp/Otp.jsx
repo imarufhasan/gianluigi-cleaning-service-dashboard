@@ -1,3 +1,5 @@
+"use client";
+
 import { useForm, Controller } from "react-hook-form";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";

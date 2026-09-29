@@ -1,255 +1,139 @@
-import { useState } from "react";
-import { Table, Modal, Button } from "antd";
-
+import { Table, Skeleton, Empty } from "antd";
+import dayjs from "dayjs";
 import { useRecentJoinUsersQuery } from "../../redux/feature/others/othersApi";
-
 import avatar from "../../assets/user.png";
 
+const formatDate = (value) =>
+  value ? dayjs(value).format("DD MMM YYYY") : "-";
 
-export default function RecentJoin() {
+const formatRole = (role) =>
+  role ? role.replace(/_/g, " ").toLowerCase() : "-";
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const { data: recentUsers } = useRecentJoinUsersQuery(undefined);
-  console.log("recentUsers--->", recentUsers?.data);
-  const users = recentUsers?.data
+function RoleBadge({ role }) {
+  const isOwner = String(role).toLowerCase().includes("owner");
+  return (
+    <span
+      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+        isOwner ? "bg-blue-50 text-blue-700" : "bg-teal-50 text-teal-700"
+      }`}
+    >
+      {formatRole(role)}
+    </span>
+  );
+}
 
-
-  const handleOverviewClick = (user) => {
-    setSelectedUser(user);
-    setModalVisible(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
-    setSelectedUser(null);
-  };
+function UserAvatar({ user }) {
+  return (
+    <img
+      src={user.profilePicture || avatar}
+      alt={user.userName}
+      className="h-10 w-10 shrink-0 rounded-full object-cover"
+    />
+  );
+}
 
 const columns = [
   {
     title: "#",
+    key: "index",
+    width: 56,
     render: (_, __, index) => index + 1,
   },
-
   {
     title: "Name",
     dataIndex: "userName",
     key: "userName",
-    render: (text, record) => (
+    render: (_, record) => (
       <div className="flex items-center gap-3">
-        <img
-          src={record.profilePicture || avatar}
-          alt={record.userName}
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <span>{record.userName}</span>
+        <UserAvatar user={record} />
+        <span className="font-medium text-gray-900">{record.userName}</span>
       </div>
     ),
   },
-
   {
     title: "Role",
     dataIndex: "role",
     key: "role",
+    render: (role) => <RoleBadge role={role} />,
   },
-
   {
     title: "Date",
     dataIndex: "createdAt",
     key: "createdAt",
-    render: (value) => new Date(value).toLocaleDateString(),
+    render: formatDate,
   },
-
   {
     title: "Phone No",
     dataIndex: "phoneNumber",
     key: "phoneNumber",
+    render: (v) => v || "-",
   },
-
   {
     title: "Email",
     dataIndex: "email",
     key: "email",
+    render: (v) => v || "-",
   },
-
-  // {
-  //   title: "Address",
-  //   dataIndex: "address",
-  //   key: "address",
-  //   render: () => "N/A",
-  // },
-
-  // {
-  //   title: "Status",
-  //   dataIndex: "status",
-  //   key: "status",
-  //   render: () => (
-  //     <select
-  //       value="Accept"
-  //       className="px-3 py-1 rounded text-sm font-medium bg-orange-500 text-white cursor-pointer"
-  //     >
-  //       <option value="Accept">Accept</option>
-  //       <option value="Reject">Reject</option>
-  //     </select>
-  //   ),
-  // },
-
-  // {
-  //   title: "Overview",
-  //   key: "overview",
-  //   render: (_, record) => (
-  //     <button
-  //       onClick={() => handleOverviewClick(record)}
-  //       className="text-gray-400 hover:text-gray-600"
-  //     >
-  //       <svg
-  //         className="w-5 h-5"
-  //         fill="none"
-  //         stroke="currentColor"
-  //         viewBox="0 0 24 24"
-  //       >
-  //         <path
-  //           strokeLinecap="round"
-  //           strokeLinejoin="round"
-  //           strokeWidth={2}
-  //           d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-  //         />
-  //       </svg>
-  //     </button>
-  //   ),
-  // },
 ];
 
+export default function RecentJoin() {
+  const { data, isLoading } = useRecentJoinUsersQuery(undefined);
+  const users = data?.data || [];
 
   return (
-    <div className="max-w-7xl mx-auto font-title">
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">
-            Recent Join Owner & Service Provider
-          </h1>
-        </div>
+    <section className="overflow-hidden rounded-xl bg-white shadow-md">
+      <div className="border-b border-gray-200 px-4 py-4 sm:px-6">
+        <h2 className="text-base font-semibold text-gray-900 sm:text-xl">
+          Recent Join Owner &amp; Service Provider
+        </h2>
+      </div>
 
+      {/* Tablet and desktop: table */}
+      <div className="hidden md:block">
         <Table
           dataSource={users}
           columns={columns}
-          rowKey="id"
+          rowKey={(record) => record.id || record._id}
+          loading={isLoading}
           pagination={false}
-          className="overflow-x-auto"
+          scroll={{ x: "max-content" }}
+          locale={{ emptyText: <Empty description="No recent users yet." /> }}
         />
+      </div>
 
-        <Modal
-          title="User Overview"
-          visible={modalVisible}
-          onCancel={handleCloseModal}
-          footer={[
-            <Button key="back" onClick={handleCloseModal}>
-              Close
-            </Button>,
-          ]}
-        >
-          {selectedUser && (
-            <div className=" pb-6">
-              {/* Profile picture */}
-              <div className="flex justify-center py-5 shadow-2xl">
-                <img
-                  src={selectedUser.avatar || "/placeholder.svg"}
-                  alt={selectedUser.name}
-                  className="w-20 h-20 rounded-full object-cover"
-                />
-              </div>
-
-              {/* User details */}
-              <div className=" bg-gray-100 w-[100%] ">
-                <div className="space-y-4  px-5 py-5">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
-                    </label>
-                    <div className="text-gray-900">{selectedUser.name}</div>
+      {/* Phone: card list */}
+      <div className="md:hidden">
+        {isLoading ? (
+          <div className="p-4">
+            <Skeleton active avatar paragraph={{ rows: 2 }} />
+          </div>
+        ) : users.length === 0 ? (
+          <Empty description="No recent users yet." className="py-8" />
+        ) : (
+          <ul className="divide-y divide-gray-100">
+            {users.map((user) => (
+              <li key={user.id || user._id} className="flex gap-3 p-4">
+                <UserAvatar user={user} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate font-medium text-gray-900">
+                      {user.userName}
+                    </p>
+                    <RoleBadge role={user.role} />
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Role
-                    </label>
-                    <div className="text-gray-900">{selectedUser.role}</div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Date
-                    </label>
-                    <div className="text-gray-900">{selectedUser.date}</div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <div className="text-gray-900">{selectedUser.phone}</div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <div className="text-gray-900">{selectedUser.email}</div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address
-                    </label>
-                    <div className="text-gray-900">{selectedUser.address}</div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Experience
-                    </label>
-                    <div className="text-gray-900">
-                      {selectedUser.experience}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      About me
-                    </label>
-                    <div className="text-gray-900 text-sm leading-relaxed">
-                      {selectedUser.about}
-                    </div>
-                    <button className="text-blue-600 text-sm mt-1 hover:underline">
-                      Read More
-                    </button>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Referred by
-                    </label>
-                    <div className="text-gray-900">
-                      {selectedUser.referredBy}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Id card
-                    </label>
-                    <img
-                      src={selectedUser.idCard}
-                      alt="ID Card"
-                      className="w-full max-w-xs h-24 object-cover rounded border"
-                    />
+                  <p className="mt-1 truncate text-sm text-gray-600">
+                    {user.email || "-"}
+                  </p>
+                  <div className="mt-1 flex flex-wrap justify-between gap-x-3 text-xs text-gray-500">
+                    <span>{user.phoneNumber || "-"}</span>
+                    <span>{formatDate(user.createdAt)}</span>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-        </Modal>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-    </div>
+    </section>
   );
 }
