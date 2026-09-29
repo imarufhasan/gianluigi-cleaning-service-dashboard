@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import dayjs from "dayjs";
 import Stats from "../../component/DashboardPage/Stats";
@@ -7,29 +6,24 @@ import RecentJoin from "../../component/DashboardPage/RecentJoin";
 import { useGetStatsQuery } from "../../redux/feature/others/othersApi";
 
 function DashboardPage() {
-  const currentYearStr = dayjs().year().toString(); // বর্তমান বছর (string হিসেবে)
-  
-  // ডিফল্টভাবে বর্তমান বছর সেট করা হয়েছে
-  const [ownerYear, setOwnerYear] = useState(currentYearStr);
-  const [earningYear, setEarningYear] = useState(currentYearStr);
+  // Ekta year selector dui chart ke control kore, karon API ekbar year niye duto overview-i dey
+  const [year, setYear] = useState(dayjs().year().toString());
 
-  // আপনার API যদি একটি বছর নেয় এবং সব ডাটা দেয়, তবে এখানে ownerYear পাস করা হয়েছে
-  const { data: stats } = useGetStatsQuery(ownerYear); 
-  
+  const { data: stats, isLoading } = useGetStatsQuery(year);
+
   const summary = stats?.data?.summary;
   const ownerOverview = stats?.data?.ownerOverview;
   const earningsOverview = stats?.data?.earningsOverview;
 
   return (
-    <div className="container mx-auto font-title mb-5">
-      <Stats summary={summary} />
+    <div className="mx-auto w-full max-w-7xl space-y-5 font-title">
+      <Stats summary={summary} isLoading={isLoading} />
       <Graph
+        year={year}
+        onYearChange={setYear}
         ownerOverview={ownerOverview}
-        setOwnerYear={setOwnerYear}
-        setEarningYear={setEarningYear}  
-        earningYear={earningYear}
-        ownerYear={ownerYear}
         earningsOverview={earningsOverview}
+        isLoading={isLoading}
       />
       <RecentJoin />
     </div>
